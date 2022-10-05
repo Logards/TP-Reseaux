@@ -148,219 +148,172 @@ On va maintenant répéter un peu ces opérations, mais en créant un réseau lo
 - un câble RJ45
 - **firewalls désactivés** sur les deux PCs
 
-## 2. Câblage
+PS C:\Users\Bastien> nslookup 231.34.113.12
+Serveur :   dns.google
+Address:  8.8.8.8
 
-Ok c'est la partie tendue. Prenez un câble. Branchez-le des deux côtés. **Bap.**
+*** dns.google ne parvient pas à trouver 231.34.113.12 : Non-existent 
 
-## Création du réseau (oupa)
-
-Cette étape pourrait paraître cruciale. En réalité, elle n'existe pas à proprement parlé. On ne peut pas "créer" un réseau.
-
-**Si une machine possède une carte réseau, et si cette carte réseau porte une adresse IP**, alors cette adresse IP se trouve dans un réseau (l'adresse de réseau). Ainsi, **le réseau existe. De fait.**  
-
-**Donc il suffit juste de définir une adresse IP sur une carte réseau pour que le réseau existe ! Bap.**
+# II. Exploration locale en duo
 
 ## 3. Modification d'adresse IP
 
 🌞 **Modifiez l'IP des deux machines pour qu'elles soient dans le même réseau**
-```
-recherche avec la touche windows
-panneau de configuration 
-modifier les parametres de la carte 
-wifi 
-proprietes
-configurer protocole internet version 4 (TCP/iPv6)
-```
 
-
-- Si vos PCs ont un port RJ45 alors y'a une carte réseau Ethernet associée
-- choisissez une IP qui commence par "10.10.10."
-  - /24 pour la longueur de masque, ou 255.255.255.0 pour le masque (suivant les OS, l'info est demandée différement, mais c'est la même chose)
+- paramètres
+- réseau et internet
+- etat
+- modifier les options d'adaptateur
+- propriété
+- protocole internet version 4
 
 🌞 **Vérifier à l'aide d'une commande que votre IP a bien été changée**
-
+```
+Carte Ethernet Ethernet 2 :
+   Suffixe DNS propre à la connexion. . . :
+   Description. . . . . . . . . . . . . . : Realtek PCIe GbE Family Controller
+   Adresse physique . . . . . . . . . . . : 48-9E-BD-4E-44-F4
+   DHCP activé. . . . . . . . . . . . . . : Non
+   Configuration automatique activée. . . : Oui
+   Adresse IPv6 de liaison locale. . . . .: fe80::1805:dfff:b745:8fc6%21(préféré)
+   Adresse IPv4. . . . . . . . . . . . . .: 10.10.10.1(préféré)
+   Masque de sous-réseau. . . . . . . . . : 255.255.255.0
+   Passerelle par défaut. . . . . . . . . :
+```
 🌞 **Vérifier que les deux machines se joignent**
+```
+PS C:\Users\Utilisateur> ping 10.10.10.6
 
-- utilisez la commande `ping` pour tester la connectivité entre les deux machines
+Envoi d’une requête 'Ping'  10.10.10.6 avec 32 octets de données :
+Réponse de 10.10.10.6 : octets=32 temps=2 ms TTL=128
+Réponse de 10.10.10.6 : octets=32 temps=3 ms TTL=128
+Réponse de 10.10.10.6 : octets=32 temps=2 ms TTL=128
+Réponse de 10.10.10.6 : octets=32 temps=2 ms TTL=128
 
-> La commande `ping` est un message simple envoyé à une autre machine. Cette autre machine retournera alors un message tout aussi simple. `ping` utilise un protocole frère de IP : le protocole ICMP. On mesure souvent la latence réseau grâce à un `ping` : en mesurant la durée entre l'émission du `ping` et la réception du retour.
+Statistiques Ping pour 10.10.10.6:
+    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
+Durée approximative des boucles en millisecondes :
+    Minimum = 2ms, Maximum = 3ms, Moyenne = 2ms
+```
 
 🌞 **Déterminer l'adresse MAC de votre correspondant**
+```
+PS C:\Users\Utilisateur> arp -a 10.10.10.6
 
-- pour cela, affichez votre table ARP
+Interface : 10.10.10.1 --- 0x15
+  Adresse Internet      Adresse physique      Type
+  10.10.10.6            08-8f-c3-52-58-34     dynamique
+```
 
 ## 4. Utilisation d'un des deux comme gateway
 
-Ca, ça peut toujours dépann irl. Comme pour donner internet à une tour sans WiFi quand y'a un PC portable à côté, par exemple.
 
-L'idée est la suivante :
-
-- vos PCs ont deux cartes avec des adresses IP actuellement
-  - la carte WiFi, elle permet notamment d'aller sur internet, grâce au réseau YNOV
-  - la carte Ethernet, qui permet actuellement de joindre votre coéquipier, grâce au réseau que vous avez créé :)
-- si on fait un tit schéma tout moche, ça donne ça :
-
-```schema
-  Internet           Internet
-     |                   |
-    WiFi                WiFi
-     |                   |
-    PC 1 ---Ethernet--- PC 2
-    
-- internet joignable en direct par le PC 1
-- internet joignable en direct par le PC 2
-```
-
-- vous allez désactiver Internet sur une des deux machines, et vous servir de l'autre machine pour accéder à internet.
-
-```schema
-  Internet           Internet
-     X                   |
-     X                  WiFi
-     |                   |
-    PC 1 ---Ethernet--- PC 2
-    
-- internet joignable en direct par le PC 2
-- internet joignable par le PC 1, en passant par le PC 2
-```
-
-- pour ce faiiiiiire :
-  - désactivez l'interface WiFi sur l'un des deux postes
-  - s'assurer de la bonne connectivité entre les deux PCs à travers le câble RJ45
-  - **sur le PC qui n'a plus internet**
-    - sur la carte Ethernet, définir comme passerelle l'adresse IP de l'autre PC
-  - **sur le PC qui a toujours internet**
-    - sur Windows, il y a une option faite exprès (google it. "share internet connection windows 10" par exemple)
-    - sur GNU/Linux, faites le en ligne de commande ou utilisez [Network Manager](https://help.ubuntu.com/community/Internet/ConnectionSharing) (souvent présent sur tous les GNU/Linux communs)
-    - sur MacOS : toute façon vous avez pas de ports RJ, si ? :o (google it sinon)
-
----
 
 🌞**Tester l'accès internet**
+```
+PS C:\Users\Utilisateur> ping 1.1.1.1
 
-- pour tester la connectivité à internet on fait souvent des requêtes simples vers un serveur internet connu
-- essayez de ping l'adresse IP `1.1.1.1`, c'est un serveur connu de CloudFlare (demandez-moi si vous comprenez pas trop la démarche)
+Envoi d’une requête 'Ping'  1.1.1.1 avec 32 octets de données :
+Réponse de 1.1.1.1 : octets=32 temps=26 ms TTL=54
+Réponse de 1.1.1.1 : octets=32 temps=23 ms TTL=54
+
+Statistiques Ping pour 1.1.1.1:
+    Paquets : envoyés = 2, reçus = 2, perdus = 0 (perte 0%),
+Durée approximative des boucles en millisecondes :
+    Minimum = 23ms, Maximum = 26ms, Moyenne = 24ms
+```
 
 🌞 **Prouver que la connexion Internet passe bien par l'autre PC**
+```
+PS C:\Users\Utilisateur> tracert google.com
 
-- utiliser la commande `traceroute` ou `tracert` (suivant votre OS) pour bien voir que les requêtes passent par la passerelle choisie (l'autre le PC)
+Détermination de l’itinéraire vers google.com [142.250.75.238]
+avec un maximum de 30 sauts :
 
-> La commande `traceroute` retourne la liste des machines par lesquelles passent le `ping` avant d'atteindre sa destination.
+  1     1 ms     1 ms     1 ms  kzenoo [192.168.137.1]
+  2     *        *        *     Délai d’attente de la demande dépassé.
+  3     5 ms     6 ms     5 ms  10.33.19.254
+```
 
 ## 5. Petit chat privé
 
-![Netcat](./pics/netcat.jpg)
+🌞 **sur le PC *serveur*** avec par exemple l'IP 192.168.1.1
 
-On va créer un chat extrêmement simpliste à l'aide de `netcat` (abrégé `nc`). Il est souvent considéré comme un bon couteau-suisse quand il s'agit de faire des choses avec le réseau.
-
-Sous GNU/Linux et MacOS vous l'avez sûrement déjà, sinon débrouillez-vous pour l'installer :). Les Windowsien, ça se passe [ici](https://eternallybored.org/misc/netcat/netcat-win32-1.11.zip) (from https://eternallybored.org/misc/netcat/).  
-
-Une fois en possession de `netcat`, vous allez pouvoir l'utiliser en ligne de commande. Comme beaucoup de commandes sous GNU/Linux, Mac et Windows, on peut utiliser l'option `-h` (`h` pour `help`) pour avoir une aide sur comment utiliser la commande.  
-
-Sur un Windows, ça donne un truc comme ça :
-
-```schema
-C:\Users\It4\Desktop\netcat-win32-1.11>nc.exe -h
-[v1.11 NT www.vulnwatch.org/netcat/]
-connect to somewhere:   nc [-options] hostname port[s] [ports] ...
-listen for inbound:     nc -l -p port [options] [hostname] [port]
-options:
-        -d              detach from console, background mode
-
-        -e prog         inbound program to exec [dangerous!!]
-        -g gateway      source-routing hop point[s], up to 8
-        -G num          source-routing pointer: 4, 8, 12, ...
-        -h              this cruft
-        -i secs         delay interval for lines sent, ports scanned
-        -l              listen mode, for inbound connects
-        -L              listen harder, re-listen on socket close
-        -n              numeric-only IP addresses, no DNS
-        -o file         hex dump of traffic
-        -p port         local port number
-        -r              randomize local and remote ports
-        -s addr         local source address
-        -t              answer TELNET negotiation
-        -u              UDP mode
-        -v              verbose [use twice to be more verbose]
-        -w secs         timeout for connects and final net reads
-        -z              zero-I/O mode [used for scanning]
-port numbers can be individual or ranges: m-n [inclusive]
+```
+C:\netcat\netcat-1.11> .\nc.exe -l -p 8888
+hello
+salut
+how are you ajd
+ca va
 ```
 
-L'idée ici est la suivante :
-
-- l'un de vous jouera le rôle d'un *serveur*
-- l'autre sera le *client* qui se connecte au *serveur*
-
-Précisément, on va dire à `netcat` d'*écouter sur un port*. Des ports, y'en a un nombre fixe (65536, on verra ça plus tard), et c'est juste le numéro de la porte à laquelle taper si on veut communiquer avec le serveur.
-
-Si le serveur écoute à la porte 20000, alors le client doit demander une connexion en tapant à la porte numéro 20000, simple non ?  
-
-Here we go :
-
-🌞 **sur le PC *serveur*** avec par exemple l'IP 192.168.1.1
-- `nc.exe -l -p 8888`
-  - "`netcat`, écoute sur le port numéro 8888 stp"
-- il se passe rien ? Normal, faut attendre qu'un client se connecte
-
 🌞 **sur le PC *client*** avec par exemple l'IP 192.168.1.2
-
-- `nc.exe 192.168.1.1 8888`
-  - "`netcat`, connecte toi au port 8888 de la machine 192.168.1.1 stp"
-- une fois fait, vous pouvez taper des messages dans les deux sens
-- appelez-moi quand ça marche ! :)
-- si ça marche pas, essayez d'autres options de `netcat`
-
----
+```
+PS C:\Users\Utilisateur\Documents\B1_info\fonction_reseau\netcat-1.11> .\nc.exe 192.168.137.1 8888
+hello
+salut
+ca va
+```
 
 🌞 **Visualiser la connexion en cours**
 
-- sur tous les OS, il existe une commande permettant de voir les connexions en cours
-- ouvrez un deuxième terminal pendant une session `netcat`, et utilisez la commande correspondant à votre OS pour repérer la connexion `netcat` :
-
-```bash
-# Windows (dans un Powershell administrateur)
-$ netstat -a -n -b
-
-# Linux
-$ ss -atnp
-
-# MacOS
-$ netstat -a -n # je crois :D
 ```
+PS C:\Windows\system32> netstat -a -n -b | Select-String 8888
+
+  TCP    192.168.137.1:8888     192.168.137.2:62178    ESTABLISHED
+
+ ```
 
 🌞 **Pour aller un peu plus loin**
 
-- si vous faites un `netstat` sur le serveur AVANT que le client `netcat` se connecte, vous devriez observer que votre serveur `netcat` écoute sur toutes vos interfaces
-  - c'est à dire qu'on peut s'y connecter depuis la wifi par exemple :D
-- il est possible d'indiquer à `netcat` une interface précise sur laquelle écouter
-  - par exemple, on écoute sur l'interface Ethernet, mais pas sur la WiFI
-
-```bash
-# Sur Windows/MacOS
-$ nc.exe -l -p PORT_NUMBER -s IP_ADDRESS
-# Par exemple
-$ nc.exe -l -p 9999 -s 192.168.1.37
 ```
 
+PS C:\Windows\system32> netstat -a -n -b | Select-String 8888
+
+  TCP    0.0.0.0:8888           0.0.0.0:0              LISTENING
+
+
+PS C:\Windows\system32> netstat -a -n -b | Select-String 8888
+
+  TCP    192.168.137.1:8888     0.0.0.0:0              LISTENING
+ ```
 ## 6. Firewall
-
-Toujours par 2.
-
-Le but est de configurer votre firewall plutôt que de le désactiver
 
 🌞 **Activez et configurez votre firewall**
 
 - autoriser les `ping`
-  - configurer le firewall de votre OS pour accepter le `ping`
-  - aidez vous d'internet
-  - on rentrera dans l'explication dans un prochain cours mais sachez que `ping` envoie un message *ICMP de type 8* (demande d'ECHO) et reçoit un message *ICMP de type 0* (réponse d'écho) en retour
-- autoriser le traffic sur le port qu'utilise `nc`
-  - on parle bien d'ouverture de **port** TCP et/ou UDP
-  - on ne parle **PAS** d'autoriser le programme `nc`
-  - choisissez arbitrairement un port entre 1024 et 20000
-  - vous utiliserez ce port pour communiquer avec `netcat` par groupe de 2 toujours
-  - le firewall du *PC serveur* devra avoir un firewall activé et un `netcat` qui fonctionne
+```
+PS C:\Windows\system32> netsh advfirewall firewall add rule name="ICMP Allow incoming V4 echo request" protocol=icmpv4:8,any dir=in action=allow
+Ok.
+```
+```
+PS C:\Users\Utilisateur\Documents\B1_info\fonction_reseau\netcat-1.11> ping 192.168.137.1
+
+Envoi d’une requête 'Ping'  192.168.137.1 avec 32 octets de données :
+Réponse de 192.168.137.1 : octets=32 temps=4 ms TTL=128
+Réponse de 192.168.137.1 : octets=32 temps=3 ms TTL=128
+Réponse de 192.168.137.1 : octets=32 temps=3 ms TTL=128
+Réponse de 192.168.137.1 : octets=32 temps=3 ms TTL=128
+
+    Paquets : envoyés = 4, reçus = 4, perdus = 0 (perte 0%),
+    Minimum = 3ms, Maximum = 4ms, Moyenne = 3ms
+```
+
+- autoriser le traffic sur le port qu'utilise \
+  -> pare-feu Windows defender avec fonctions avancées de sécurité \
+ -> règles de trafic entrant \
+ -> nouvelle règle \
+ -> port \
+ -> TCP et ports locaux spécifiques : 8888 \
+ -> autoriser la connexion \
+ -> domaine + privé + public \
+ -> nom de la règle : " port 8888 ouvert"
+
+ ```
+ PS C:\Users\Utilisateur\Documents\B1_info\fonction_reseau\netcat-1.11> .\nc.exe 192.168.137.1 8888
+hello
+coucou
+```
   
 # III. Manipulations d'autres outils/protocoles côté client
 
@@ -377,6 +330,29 @@ Une fois que le serveur DHCP vous a donné une IP, vous enregistrer un fichier a
 
 🌞**Exploration du DHCP, depuis votre PC**
 
+```
+Carte réseau sans fil Wi-Fi :
+
+   Suffixe DNS propre à la connexion. . . :
+   Description. . . . . . . . . . . . . . : Intel(R) Wi-Fi 6 AX201 160MHz
+   Adresse physique . . . . . . . . . . . : 6C-94-66-1F-BE-8B
+   DHCP activé. . . . . . . . . . . . . . : Oui
+   Configuration automatique activée. . . : Oui
+   Adresse IPv6 de liaison locale. . . . .: fe80::5cc4:c719:6cd6:9db9%9(préféré)
+   Adresse IPv4. . . . . . . . . . . . . .: 10.33.16.132(préféré)
+   Masque de sous-réseau. . . . . . . . . : 255.255.252.0
+   Bail obtenu. . . . . . . . . . . . . . : mercredi 5 octobre 2022 11:00:24
+   Bail expirant. . . . . . . . . . . . . : jeudi 6 octobre 2022 11:00:24
+   Passerelle par défaut. . . . . . . . . : 10.33.19.254
+   Serveur DHCP . . . . . . . . . . . . . : 10.33.19.254
+   IAID DHCPv6 . . . . . . . . . . . : 141333606
+   DUID de client DHCPv6. . . . . . . . : 00-01-00-01-2A-C3-A6-C8-6C-94-66-1F-BE-8B
+   Serveurs DNS. . .  . . . . . . . . . . : 8.8.8.8
+                                       8.8.4.4
+                                       1.1.1.1
+   NetBIOS sur Tcpip. . . . . . . . . . . : Activé
+```
+
 - afficher l'adresse IP du serveur DHCP du réseau WiFi YNOV
 - cette adresse a une durée de vie limitée. C'est le principe du ***bail DHCP*** (ou *DHCP lease*). Trouver la date d'expiration de votre bail DHCP
 - vous pouvez vous renseigner un peu sur le fonctionnement de DHCP dans les grandes lignes. On aura un cours là dessus :)
@@ -392,18 +368,74 @@ Un **serveur DNS** est un serveur à qui l'on peut poser des questions (= effect
 Si votre navigateur fonctionne "normalement" (il vous permet d'aller sur `google.com` par exemple) alors votre ordinateur connaît forcément l'adresse d'un serveur DNS. Et quand vous naviguez sur internet, il effectue toutes les requêtes DNS à votre place, de façon automatique.
 
 🌞** Trouver l'adresse IP du serveur DNS que connaît votre ordinateur**
+```
+PS C:\Users\Bastien> nslookup google.com
+Serveur :   dns.google
+Address:  8.8.8.8
+```
 
 🌞 Utiliser, en ligne de commande l'outil `nslookup` (Windows, MacOS) ou `dig` (GNU/Linux, MacOS) pour faire des requêtes DNS à la main
 
 - faites un *lookup* (*lookup* = "dis moi à quelle IP se trouve tel nom de domaine")
   - pour `google.com`
+```
+  PS C:\Users\Bastien> nslookup google.com
+Serveur :   dns.google
+Address:  8.8.8.8
+
+Réponse ne faisant pas autorité :
+Nom :    google.com
+Addresses:  2a00:1450:4007:808::200e
+          142.250.201.174
+```
+
+
   - pour `ynov.com`
+```
+  PS C:\Users\Bastien> nslookup ynov.com
+Serveur :   dns.google
+Address:  8.8.8.8
+
+Réponse ne faisant pas autorité :
+Nom :    ynov.com
+Addresses:  2606:4700:20::ac43:4ae2
+          2606:4700:20::681a:ae9
+          2606:4700:20::681a:be9
+          104.26.10.233
+          104.26.11.233
+          172.67.74.226
+  ```
   - interpréter les résultats de ces commandes
+  ```
+  ne fais pas autorité car l'adresse était stocké en cache, la réponse de ne viens pas de celui qui sait
+  la commande renvoit l'ip de l'adresse demandé
+  ``` 
 - déterminer l'adresse IP du serveur à qui vous venez d'effectuer ces requêtes
+```
+8.8.8.8
+```
 - faites un *reverse lookup* (= "dis moi si tu connais un nom de domaine pour telle IP")
   - pour l'adresse `78.73.21.21`
+```
+  PS C:\Users\Bastien> nslookup 78.73.21.21
+Serveur :   dns.google
+Address:  8.8.8.8
+
+Nom :    78-73-21-21-no168.tbcn.telia.com
+Address:  78.73.21.21
+```
   - pour l'adresse `22.146.54.58`
+```
+PS C:\Users\Bastien> nslookup 231.34.113.12
+Serveur :   dns.google
+Address:  8.8.8.8
+
+*** dns.google ne parvient pas à trouver 231.34.113.12 : Non-existent d
+```
   - interpréter les résultats
+  ```
+  Cela nous renvoie les noms de domaines
+  ```
   - *si vous vous demandez, j'ai pris des adresses random :)*
 
 # IV. Wireshark
@@ -426,8 +458,9 @@ Un peu austère aux premiers abords, une manipulation très basique permet d'avo
 ➜ **[Téléchargez l'outil Wireshark](https://www.wireshark.org/).**
 
 🌞 Utilisez le pour observer les trames qui circulent entre vos deux carte Ethernet. Mettez en évidence :
-
+![trame](tramenetcat.png)
 - un `ping` entre vous et votre passerelle
+![ping](ping.png)
 - un `netcat` entre vous et votre mate, branché en RJ45
 - une requête DNS. Identifiez dans la capture le serveur DNS à qui vous posez la question.
 - prenez moi des screens des trames en question
