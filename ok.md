@@ -463,6 +463,7 @@ Un peu austère aux premiers abords, une manipulation très basique permet d'avo
 ![ping](ping.png)
 - un `netcat` entre vous et votre mate, branché en RJ45
 - une requête DNS. Identifiez dans la capture le serveur DNS à qui vous posez la question.
+![dns](dns.png)
 - prenez moi des screens des trames en question
 - on va prendre l'habitude d'utiliser Wireshark souvent dans les cours, pour visualiser ce qu'il se passe
 
