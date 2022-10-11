@@ -213,7 +213,17 @@ Interface : 10.33.16.132 --- 0xf
 - mettez en évidence les deux trames ARP échangées lorsque vous essayez de contacter quelqu'un pour la "première" fois
 [ça sniffe bien wireshark](./peow.pcapng)
   - déterminez, pour les deux trames, les adresses source et destination
+  ```
+  au départ: 
+  source : le pc de mon coupain
+  dest : Moua
+  et après cela s'inverse
+  ```
   - déterminez à quoi correspond chacune de ces adresses
+
+[cat + ARP = un cart ](./carp.pcapng)
+
+[la suite](./unknown.png)
 
 🦈 **PCAP qui contient les trames ARP**
 
@@ -283,5 +293,6 @@ L'échange DHCP  entre un client et le serveur DHCP consiste en 4 trames : **DOR
 - identifiez dans ces 4 trames les informations **1**, **2** et **3** dont on a parlé juste au dessus
 
 🦈 **PCAP qui contient l'échange DORA**
+[chippeur arrête de chipper](./chipper.pcapng)
 
 > **Soucis** : l'échange DHCP ne se produit qu'à la première connexion. **Pour forcer un échange DHCP**, ça dépend de votre OS. Sur **GNU/Linux**, avec `dhclient` ça se fait bien. Sur **Windows**, le plus simple reste de définir une IP statique pourrie sur la carte réseau, se déconnecter du réseau, remettre en DHCP, se reconnecter au réseau. Sur **MacOS**, je connais peu mais Internet dit qu'c'est po si compliqué, appelez moi si besoin.
