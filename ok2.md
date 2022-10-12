@@ -223,7 +223,7 @@ Interface : 10.33.16.132 --- 0xf
 
 [cat + ARP = un cart ](./carp.pcapng)
 
-[la suite](./unknown.png)
+!/[la suite](./unknown.png)
 
 🦈 **PCAP qui contient les trames ARP**
 
@@ -293,6 +293,14 @@ L'échange DHCP  entre un client et le serveur DHCP consiste en 4 trames : **DOR
 - identifiez dans ces 4 trames les informations **1**, **2** et **3** dont on a parlé juste au dessus
 
 🦈 **PCAP qui contient l'échange DORA**
+
+[La série est centrée sur Dora Marquez, une jeune Latina de sept ans, qui adore se lancer dans des quêtes, accompagnée de son sac à dos violet parlant et de son compagnon singe anthropomorphe Babouche. Chaque épisode est basé sur une série d'événements cycliques qui se produisent en cours de route pendant les voyages de Dora, ainsi que sur les obstacles qu'ils doivent surmonter ou les énigmes qu'ils doivent résoudre (avec l'aide du public) : parler anglais (espagnol dans la VO) ou compter. Les rituels les plus courants sont la rencontre de Dora avec Chipeur, un renard voleur masqué, anthropomorphe et bipède, dont le vol des biens d'autrui doit être empêché par une interaction avec le spectateur. Pour arrêter Chipeur, Dora doit dire trois fois "Chipeur, arrête de chiper". Cependant, lorsque ce dernier vole les biens d'autrui, le spectateur doit aider Babouche et Dora à retrouver les objets volés.
+
+L'épisode se termine toujours par le passage réussi de Dora, qui chante la chanson "We Did It!" avec Babouche en triomphe.
+
+À de nombreuses occasions, des émissions spéciales ont été diffusées pour la série, dans lesquelles les événements habituels des épisodes réguliers sont modifiés ou remplacés. Ces émissions spéciales présentent généralement à Dora une aventure plus grande et plus fantaisiste que d'habitude ou une tâche magique à accomplir. Ils pourraient se voir confier une tâche inhabituelle et difficile (comme aider Chipeur qui risque d'être effacé de la liste des vilains du Père Noël). Souvent les émissions spéciales font apparaître de nouveaux personnages, comme la naissance des jumeaux surpuissants de Dora et les étoiles anthropomorphes enchantées qui accompagnent Dora dans nombre de ses quêtes.]
+
 [chippeur arrête de chipper](./chipper.pcapng)
+
 
 > **Soucis** : l'échange DHCP ne se produit qu'à la première connexion. **Pour forcer un échange DHCP**, ça dépend de votre OS. Sur **GNU/Linux**, avec `dhclient` ça se fait bien. Sur **Windows**, le plus simple reste de définir une IP statique pourrie sur la carte réseau, se déconnecter du réseau, remettre en DHCP, se reconnecter au réseau. Sur **MacOS**, je connais peu mais Internet dit qu'c'est po si compliqué, appelez moi si besoin.
