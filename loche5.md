@@ -245,4 +245,14 @@ R1#
 ```
 - vous devriez pouvoir `ping 1.1.1.1`
 
+```
+R1#ping 1.1.1.1  
+
+Type escape sequence to abort.
+Sending 5, 100-byte ICMP Echos to 1.1.1.1, timeout is 2 seconds:
+.!!!!
+Success rate is 80 percent (4/5), round-trip min/avg/max = 20/20/20 ms
+```
+
+
 
